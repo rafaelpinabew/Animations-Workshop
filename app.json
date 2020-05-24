@@ -1,0 +1,17 @@
+{
+  "name": "animationswork",
+  "displayName": "animationswork",
+  "expo": {
+    "name": "animationswork",
+    "slug": "animationswork",
+    "version": "1.0.0",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
