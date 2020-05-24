@@ -25,20 +25,6 @@ const cards = [
   },
 ];
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      {cards.map(({ type }, index) => {
-        return (
-          <View style={styles.card}>
-            <Card { ...{ type }} />
-          </View>
-        );
-      })}
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
@@ -48,3 +34,17 @@ const styles = StyleSheet.create({
     marginVertical: MARGIN,
   },
 });
+
+export default function App() {
+  return (
+    <View style={styles.container}>
+      {cards.map(({ type }, index) => {
+        return (
+          <View style={styles.card} key={index}>
+            <Card {...{ type }} />
+          </View>
+        );
+      })}
+    </View>
+  );
+}
