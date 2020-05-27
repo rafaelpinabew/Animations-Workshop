@@ -55,19 +55,30 @@ const styles = StyleSheet.create({
 
 function CardDetail() {
   const { getParam } = useNavigation();
-  const { perk, type } = getParam("card");
+  const { perk, type, id } = getParam("card");
+  // const backgroundColor = interpolateColor({
+  //   inputRange: [],
+  //   outputRange: [],
+  // })
   return (
-    <View style={[styles.container]}>
+    <Animated.View style={[styles.container, { backgroundColor: 'white' }]}>
       <Text style={[styles.title]}>Service Call Detail</Text>
       <View>
-        <Card {...{ type }} style={styles.image} />
+        <SharedElement id={id}>
+          <Card {...{ type }} style={styles.image} />
+        </SharedElement>
       </View>
       <View style={[styles.details]}>
         <Text style={styles.detail}>Perk: </Text>
         <Text style={styles.detailSub}>{perk}</Text>
       </View>
-    </View>
+    </Animated.View>
   );
 }
+
+CardDetail.sharedElement = (navigation: ReturnType<typeof useNavigation>) => {
+  const card = navigation.getParam("card");
+  return [card.id];
+};
 
 export default CardDetail;
