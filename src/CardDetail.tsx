@@ -10,6 +10,7 @@ import Animated, {
   call,
   eq,
   interpolate,
+  Extrapolate,
 } from "react-native-reanimated";
 import {
   usePanGestureHandler,
@@ -54,29 +55,52 @@ const styles = StyleSheet.create({
 });
 
 function CardDetail() {
-  const { getParam } = useNavigation();
+  const { getParam, goBack } = useNavigation();
+  const {
+    gestureHandler,
+    translation,
+    velocity,
+    state,
+  } = usePanGestureHandler();
   const { perk, type, id } = getParam("card");
-  // const backgroundColor = interpolateColor({
-  //   inputRange: [],
-  //   outputRange: [],
-  // })
+  const y = interpolate(translation.y, {
+    inputRange: [0, CARD_HEIGHT],
+    outputRange: [0, CARD_HEIGHT],
+    extrapolate: Extrapolate.CLAMP,
+  });
+  const backgroundColor = interpolateColor(translation.y, {
+    inputRange: [0, CARD_HEIGHT],
+    outputRange: [colors.white, colors.transparent],
+  });
+  const translateY = withDecay({ value: y, velocity: velocity.y, state });
+  const opacity = interpolate(y, {
+    inputRange: [0, CARD_HEIGHT / 2],
+    outputRange: [1, 0],
+  });
+  function snapBack() {
+    goBack();
+  }
+
+  useCode(() => block([cond(eq(state, State.END), call([], snapBack))]), []);
   return (
-    <Animated.View style={[styles.container, { backgroundColor: 'white' }]}>
-      <Text style={[styles.title]}>Service Call Detail</Text>
-      <View>
-        <SharedElement id={id}>
-          <Card {...{ type }} style={styles.image} />
-        </SharedElement>
-      </View>
-      <View style={[styles.details]}>
-        <Text style={styles.detail}>Perk: </Text>
-        <Text style={styles.detailSub}>{perk}</Text>
-      </View>
-    </Animated.View>
+    <PanGestureHandler {...gestureHandler}>
+      <Animated.View style={[styles.container, { backgroundColor }]}>
+        <Text style={[styles.title]}>Service Call Detail</Text>
+        <Animated.View style={[{ transform: [{ translateY }] }]}>
+          <SharedElement id={id}>
+            <Card {...{ type }} style={styles.image} />
+          </SharedElement>
+        </Animated.View>
+        <Animated.View style={[styles.details, { opacity }]}>
+          <Text style={styles.detail}>Perk: </Text>
+          <Text style={styles.detailSub}>{perk}</Text>
+        </Animated.View>
+      </Animated.View>
+    </PanGestureHandler>
   );
 }
 
-CardDetail.sharedElement = (navigation: ReturnType<typeof useNavigation>) => {
+CardDetail.sharedElements = (navigation: ReturnType<typeof useNavigation>) => {
   const card = navigation.getParam("card");
   return [card.id];
 };
