@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Dimensions } from "react-native";
+import { StyleSheet, Dimensions, View } from "react-native";
 import { PanGestureHandler } from "react-native-gesture-handler";
 import { SharedElement } from "react-navigation-shared-element";
 import Animated from "react-native-reanimated";
@@ -68,75 +68,15 @@ const styles = StyleSheet.create({
 });
 
 export default function App() {
-  const { navigate } = useNavigation();
-  const {
-    gestureHandler,
-    state,
-    translation,
-    velocity,
-  } = usePanGestureHandler();
-
-  const [containerHeight, setContainerHeight] = React.useState(height);
-  const visibleCards = Math.floor(containerHeight / HEIGHT);
-  const y = diffClamp(
-    withDecay({
-      value: translation.y,
-      velocity: velocity.y,
-      state,
-    }),
-    -HEIGHT * cards.length + visibleCards * HEIGHT,
-    0
-  );
   return (
-    <PanGestureHandler {...gestureHandler}>
-      <Animated.View
-        style={styles.container}
-        onLayout={({ nativeEvent }) => {
-          setContainerHeight(nativeEvent.layout.height);
-        }}
-      >
-        {cards.map(({ type, id, perk }, index) => {
-          const positionY = add(y, index * HEIGHT);
-          const isDissapearing = -HEIGHT;
-          const isTop = 0;
-          const isAppearing = HEIGHT * (visibleCards - 1);
-          const isBottom = HEIGHT * visibleCards;
-          const translateY = interpolate(y, {
-            inputRange: [-HEIGHT * index, 0],
-            outputRange: [-HEIGHT * index, 0],
-            extrapolate: Extrapolate.CLAMP,
-          });
-          const opacity = interpolate(positionY, {
-            inputRange: [isDissapearing, isTop, isAppearing, isBottom],
-            outputRange: [0, 1, 1, 0],
-            extrapolate: Extrapolate.CLAMP,
-          });
-          const scale = interpolate(positionY, {
-            inputRange: [isDissapearing, isTop, isAppearing, isBottom],
-            outputRange: [0.7, 1, 1, 0.7],
-            extrapolate: Extrapolate.CLAMP,
-          });
-          return (
-            <Animated.View
-              style={[
-                { opacity },
-                styles.card,
-                { transform: [{ translateY }, { scale }] },
-              ]}
-              key={index}
-            >
-              <SharedElement id={id}>
-                <Card
-                  {...{ type }}
-                  onPress={() =>
-                    navigate("CardDetail", { card: { id, type, perk } })
-                  }
-                />
-              </SharedElement>
-            </Animated.View>
-          );
-        })}
-      </Animated.View>
-    </PanGestureHandler>
+    <View style={styles.container}>
+      {cards.map(({ type, id, perk }, index) => {
+        return (
+          <View key={index} style={styles.card}>
+            <Card {...{ type }} />
+          </View>
+        );
+      })}
+    </View>
   );
 }
